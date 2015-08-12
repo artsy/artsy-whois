@@ -28,6 +28,9 @@ class WhoIs < Sinatra::Base
         puts "#{ENV['TEAM_NAV_API']}member?=#{user['profile']['email']}"
         puts response.body
         response.body.to_json
+
+        client.chat_postMessage channel: '@christina', text: "#{JSON.parse(response.body)['name']}"
+
       end
     end
   end
