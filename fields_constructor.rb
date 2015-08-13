@@ -21,6 +21,7 @@ class FieldContructor
         short: true
       }
     ]
+    puts fields
   end
 
   def getTeam(artsy_user)

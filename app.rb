@@ -6,11 +6,12 @@ require 'json'
 require 'httparty'
 require 'pp'
 require 'csv'
+require 'uri'
 require './fields_constructor.rb'
 
 Dotenv.load
 
-class WhoIs < Sinatra::Base
+class Whois < Sinatra::Base
   post '/' do
     content_type :json
 
@@ -23,24 +24,51 @@ class WhoIs < Sinatra::Base
     subject = params[:text]
     user_name = params[:user_name]
 
-    user = client.users_list['members'].find { |u| user["name"] == subject }
+    slack_user = client.users_list['members'].find { |u| u["name"] == subject }
 
-    response = HTTParty.get("#{ENV['TEAM_NAV_API']}member?=#{user['profile']['email']}")
-    artsy_user = JSON.parse(response.body)
+    response = HTTParty.get("#{ENV['TEAM_NAV_API']}members")
+    user_list = JSON.parse(response.body)
+
+    artsy_user = user_list.find do |u|
+      "#{u['email']}artsymail.com" == slack_user['profile']['email']
+    end
+
+    headshot = artsy_user['headshot'] ? artsy_user['headshot'] : slack_user['profile']['image_192']
 
     attachments = [{
         title: "#{artsy_user['name']}",
         text: "",
-        thumb_url: user['profile']['image_192'],
-        fields: FieldConstructor.new(artsy_user)
+        thumb_url: "#{embedly_url(headshot)}",
+        fields: FieldContructor.new(artsy_user)
       }]
+
     args = {
       channel: "@#{user_name}",
       text: "",
+      username: "Artsy",
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
-    client.chat_postMessage args
 
+    client.chat_postMessage args
+    status 200
+    body ''
+  end
+
+  def embedly_url(img)
+    uri = URI::HTTP.build(
+      host: "i.embed.ly",
+      path: "/1/display/crop",
+      query: URI.encode_www_form({
+        url: img,
+        width: 200,
+        height: 200,
+        quality: 90,
+        grow: false,
+        key: ENV['EMBEDLY_KEY']
+      })
+    )
+    puts uri
+    uri
   end
 end
