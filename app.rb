@@ -31,11 +31,11 @@ class Whois < Sinatra::Base
     headshot = artsy_user['headshot'].empty? ? slack_user['profile']['image_192'] : artsy_user['headshot']
 
     attachments = [{
-        title: "#{artsy_user['name']}",
-        text: "",
-        thumb_url: "#{embedly_url(headshot)}",
-        fields: Fields.new(artsy_user).array
-      }]
+      title: "#{artsy_user['name']}",
+      text: "",
+      thumb_url: "#{embedly_url(headshot)}",
+      fields: Fields.new(artsy_user).array
+    }]
 
     args = {
       channel: "@#{requester}",
@@ -46,13 +46,13 @@ class Whois < Sinatra::Base
     }
 
     @client.chat_postMessage args
+
     content_type :json
     status 200
     body ''
   end
 
   def find_slack_profile(username)
-    puts @client
     slack_user = @client.users_list['members'].find do |u|
       u["name"] == username
     end
