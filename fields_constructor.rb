@@ -1,7 +1,8 @@
 class FieldContructor
+  attr_accessor :fieldsArray
 
   def initialize(artsy_user)
-    fieldsArray = [
+    @fieldsArray = [
       { title: "Title",
         value: "#{artsy_user['title']}",
         short: false
@@ -21,7 +22,6 @@ class FieldContructor
         short: true
       }
     ]
-    puts fields
   end
 
   def getTeam(artsy_user)

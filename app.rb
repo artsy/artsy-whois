@@ -39,8 +39,10 @@ class Whois < Sinatra::Base
         title: "#{artsy_user['name']}",
         text: "",
         thumb_url: "#{embedly_url(headshot)}",
-        fields: FieldContructor.new(artsy_user)
+        fields: FieldContructor.new(artsy_user).fieldsArray
       }]
+    puts attachments
+    puts user_name
 
     args = {
       channel: "@#{user_name}",
@@ -49,6 +51,7 @@ class Whois < Sinatra::Base
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
+    puts args
 
     client.chat_postMessage args
     status 200
