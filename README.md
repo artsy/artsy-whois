@@ -3,10 +3,6 @@ Whois
 
 A Slack bot for Artsy's Team Navigator.
 
-## Installation
-
-See [DEPLOYMENT](DEPLOYMENT.md).
-
 ## Commands
 
 ### whois [slack username]
