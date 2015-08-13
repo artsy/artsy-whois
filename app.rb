@@ -36,6 +36,7 @@ class Whois < Sinatra::Base
       title: "#{artsy_user['name']}",
       title_link: "#{ENV['TEAM_NAV_API']}/#{email_name(slack_user)}",
       text: "",
+      fallback: "Info on #{artsy_user['name']}",
       color: "#6a0bc1",
       thumb_url: "#{embedly_url(headshot)}",
       fields: Fields.new(artsy_user).array
