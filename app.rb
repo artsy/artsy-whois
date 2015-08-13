@@ -22,7 +22,7 @@ class Whois < Sinatra::Base
 
     @client = Slack::Client.new
 
-    username = params[:text]
+    username = params[:text].sub("@", "")
     requester = params[:user_name]
 
     slack_user = find_slack_profile(username)
