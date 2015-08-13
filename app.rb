@@ -6,6 +6,7 @@ require 'json'
 require 'httparty'
 require 'pp'
 require 'csv'
+require 'uri'
 
 Dotenv.load
 
@@ -31,15 +32,12 @@ class Whois < Sinatra::Base
       "#{u['email']}artsymail.com" == slack_user['profile']['email']
     end
 
-    headshot = "#{artsy_user['headshot'][/[^\?]+/]}?raw=true"
-    img_url = HTTParty.get headshot
-    img_url.request.last_uri.to_s
-    puts img_url.request.last_uri.to_s
+    headshot = artsy_user['headshot'] ? artsy_user['headshot'] : slack_user['profile']['image_192']
 
     attachments = [{
         title: "#{artsy_user['name']}",
         text: "",
-        thumb_url: "#{img_url.request.last_uri.to_s}",
+        thumb_url: "#{embedly_url(headshot)}",
         fields: [
           {
             title: "Title",
@@ -53,6 +51,7 @@ class Whois < Sinatra::Base
           }
         ]
       }]
+
     args = {
       channel: "@#{user_name}",
       text: "",
@@ -64,5 +63,22 @@ class Whois < Sinatra::Base
     client.chat_postMessage args
     status 200
     body ''
+  end
+
+  def embedly_url(img)
+    uri = URI::HTTP.build(
+      host: "i.embed.ly",
+      path: "/1/display/crop",
+      query: URI.encode_www_form({
+        url: img,
+        width: 200,
+        height: 200,
+        quality: 90,
+        grow: false,
+        key: ENV['EMBEDLY_KEY']
+      })
+    )
+    puts uri
+    uri
   end
 end
