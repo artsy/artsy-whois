@@ -41,8 +41,6 @@ class Whois < Sinatra::Base
         thumb_url: "#{embedly_url(headshot)}",
         fields: FieldContructor.new(artsy_user).fieldsArray
       }]
-    puts attachments
-    puts user_name
 
     args = {
       channel: "@#{user_name}",
@@ -51,7 +49,6 @@ class Whois < Sinatra::Base
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
-    puts args
 
     client.chat_postMessage args
     status 200
@@ -71,7 +68,7 @@ class Whois < Sinatra::Base
         key: ENV['EMBEDLY_KEY']
       })
     )
-    puts uri
+
     uri
   end
 end
