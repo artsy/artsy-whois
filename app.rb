@@ -9,7 +9,7 @@ require 'csv'
 
 Dotenv.load
 
-class WhoIs < Sinatra::Base
+class Whois < Sinatra::Base
   post '/' do
     content_type :json
 
@@ -22,24 +22,33 @@ class WhoIs < Sinatra::Base
     subject = params[:text]
     user_name = params[:user_name]
 
-    user = client.users_list['members'].find { |u| user["name"] == subject }
+    slack_user = client.users_list['members'].find { |u| u["name"] == subject }
 
-    response = HTTParty.get("#{ENV['TEAM_NAV_API']}member?=#{user['profile']['email']}")
-    artsy_user = JSON.parse(response.body)
+    response = HTTParty.get("#{ENV['TEAM_NAV_API']}members")
+    user_list = JSON.parse(response.body)
+
+    artsy_user = user_list.find do |u|
+      "#{u['email']}artsymail.com" == slack_user['profile']['email']
+    end
+
+    headshot = "#{artsy_user['headshot'][/[^\?]+/]}?raw=true"
+    img_url = HTTParty.get headshot
+    img_url.request.last_uri.to_s
+    puts img_url.request.last_uri.to_s
 
     attachments = [{
         title: "#{artsy_user['name']}",
         text: "",
-        thumb_url: user['profile']['image_192'],
+        thumb_url: "#{img_url.request.last_uri.to_s}",
         fields: [
           {
-            title: "Role",
-            value: "#{artsy_user['role']}",
-            short: true
+            title: "Title",
+            value: "#{artsy_user['title']}",
+            short: false
           },
           {
             title: "Team",
-            value: "#{artsy_user['practice']}",
+            value: "#{artsy_user['team']}",
             short: true
           }
         ]
@@ -47,10 +56,13 @@ class WhoIs < Sinatra::Base
     args = {
       channel: "@#{user_name}",
       text: "",
+      username: "Artsy",
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
-    client.chat_postMessage args
 
+    client.chat_postMessage args
+    status 200
+    body ''
   end
 end
