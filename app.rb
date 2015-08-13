@@ -21,7 +21,7 @@ class Whois < Sinatra::Base
 
     client = Slack::Client.new
 
-    subject = params[:text]
+    subject = params[:text].sub("@", "")
     user_name = params[:user_name]
 
     slack_user = client.users_list['members'].find { |u| u["name"] == subject }
