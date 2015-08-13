@@ -28,7 +28,7 @@ class Fields
   end
 
   def get_team(artsy_user)
-    artsy_user['subteam'] != '--' ? artsy_user['subteam'] : artsy_user['team']
+    artsy_user['subteam'].empty? ? artsy_user['team'] : artsy_user['subteam']
   end
 
   def add_floor(artsy_user)
