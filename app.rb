@@ -25,13 +25,10 @@ class Whois < Sinatra::Base
     username = params[:text]
     requester = params[:user_name]
 
-    response = HTTParty.get("#{ENV['TEAM_NAV_API']}members")
-    user_list = JSON.parse(response.body)
-
     slack_user = find_slack_profile(username)
-    artsy_user = find_artsy_user(slack_user)
+    artsy_user = find_artsy_user(slack_user) if slack_user
 
-    return "Could not find user!" if slack_user.nil? || artsy_user.nil?
+    return body("Could not find user!") if slack_user.nil? || artsy_user.nil?
 
     headshot = artsy_user['headshot'].empty? ? slack_user['profile']['image_192'] : artsy_user['headshot']
 
@@ -43,14 +40,14 @@ class Whois < Sinatra::Base
       }]
 
     args = {
-      channel: "@#{user_name}",
+      channel: "@#{requester}",
       text: "",
       username: "Artsy",
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
 
-    client.chat_postMessage args
+    @client.chat_postMessage args
     status 200
     body ''
   end
@@ -63,9 +60,9 @@ class Whois < Sinatra::Base
   end
 
   def find_artsy_user(slack_user)
-    artsy_user = user_list.find do |u|
-      "#{u['email']}artsymail.com" == slack_user['profile']['email']
-    end
+    url = "#{ENV['TEAM_NAV_API']}members/#{slack_user['profile']['email'].split('@')[0]}"
+    response = HTTParty.get(url)
+    user = JSON.parse(response.body)
   end
 
   def embedly_url(img)
