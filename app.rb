@@ -33,7 +33,7 @@ class Whois < Sinatra::Base
       "#{u['email']}artsymail.com" == slack_user['profile']['email']
     end
 
-    headshot = artsy_user['headshot'] ? artsy_user['headshot'] : slack_user['profile']['image_192']
+    headshot = artsy_user['headshot'].empty? ? slack_user['profile']['image_192'] : artsy_user['headshot']
 
     attachments = [{
         title: "#{artsy_user['name']}",
@@ -41,8 +41,6 @@ class Whois < Sinatra::Base
         thumb_url: "#{embedly_url(headshot)}",
         fields: FieldContructor.new(artsy_user).fieldsArray
       }]
-    puts attachments
-    puts user_name
 
     args = {
       channel: "@#{user_name}",
@@ -51,7 +49,6 @@ class Whois < Sinatra::Base
       icon_url: "https://www.artsy.net/images/icon-150.png",
       attachments: attachments.to_json
     }
-    puts args
 
     client.chat_postMessage args
     status 200
@@ -59,19 +56,20 @@ class Whois < Sinatra::Base
   end
 
   def embedly_url(img)
-    uri = URI::HTTP.build(
-      host: "i.embed.ly",
-      path: "/1/display/crop",
-      query: URI.encode_www_form({
-        url: img,
-        width: 200,
-        height: 200,
-        quality: 90,
-        grow: false,
-        key: ENV['EMBEDLY_KEY']
-      })
-    )
-    puts uri
-    uri
+    unless img.index('gravatar')
+      uri = URI::HTTP.build(
+        host: "i.embed.ly",
+        path: "/1/display/crop",
+        query: URI.encode_www_form({
+          url: img,
+          width: 200,
+          height: 200,
+          quality: 90,
+          grow: false,
+          key: ENV['EMBEDLY_KEY']
+        })
+      )
+      uri
+    end
   end
 end
