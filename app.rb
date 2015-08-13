@@ -1,7 +1,7 @@
 # app.rb
 require 'sinatra'
 require 'dotenv'
-require 'slack'
+require 'slack-ruby-client'
 require 'json'
 require 'httparty'
 require 'pp'
@@ -18,7 +18,7 @@ class Whois < Sinatra::Base
       config.token = ENV['SLACK_API_TOKEN']
     end
 
-    @client = Slack::Client.new
+    @client = Slack::Web::Client.new(user_agent: 'Slack Ruby Client/1.0')
 
     requester = params[:user_name]
     args = params[:text].split(" ")

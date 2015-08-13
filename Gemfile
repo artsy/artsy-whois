@@ -1,5 +1,5 @@
 source "https://rubygems.org"
 gem 'sinatra'
-gem 'slack-api'
+gem 'slack-ruby-client'
 gem 'dotenv'
 gem 'httparty'
