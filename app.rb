@@ -7,31 +7,29 @@ require 'httparty'
 require 'pp'
 require 'csv'
 require 'uri'
-require './fields_constructor.rb'
+require './fields.rb'
 
 Dotenv.load
 
 class Whois < Sinatra::Base
+
+  Slack.configure do |config|
+    config.token = ENV['SLACK_API_TOKEN']
+  end
+
+  client = Slack::Client.new
+
   post '/' do
     content_type :json
 
-    Slack.configure do |config|
-      config.token = ENV['SLACK_API_TOKEN']
-    end
-
-    client = Slack::Client.new
-
-    subject = params[:text]
-    user_name = params[:user_name]
-
-    slack_user = client.users_list['members'].find { |u| u["name"] == subject }
+    username = params[:text]
+    requester = params[:user_name]
 
     response = HTTParty.get("#{ENV['TEAM_NAV_API']}members")
     user_list = JSON.parse(response.body)
 
-    artsy_user = user_list.find do |u|
-      "#{u['email']}artsymail.com" == slack_user['profile']['email']
-    end
+    slack_user = find_slack_profile(username)
+    artsy_user = find_artsy_user(slack_user)
 
     headshot = artsy_user['headshot'].empty? ? slack_user['profile']['image_192'] : artsy_user['headshot']
 
@@ -39,7 +37,7 @@ class Whois < Sinatra::Base
         title: "#{artsy_user['name']}",
         text: "",
         thumb_url: "#{embedly_url(headshot)}",
-        fields: FieldContructor.new(artsy_user).fieldsArray
+        fields: Fields.new(artsy_user).array
       }]
 
     args = {
@@ -53,6 +51,18 @@ class Whois < Sinatra::Base
     client.chat_postMessage args
     status 200
     body ''
+  end
+
+  def find_slack_profile(username)
+    slack_user = client.users_list['members'].find do |u|
+      u["name"] == username
+    end
+  end
+
+  def find_artsy_user(slack_user)
+    artsy_user = user_list.find do |u|
+      "#{u['email']}artsymail.com" == slack_user['profile']['email']
+    end
   end
 
   def embedly_url(img)

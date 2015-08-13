@@ -1,14 +1,14 @@
-class FieldContructor
-  attr_accessor :fieldsArray
+class Fields
+  attr_accessor :array
 
   def initialize(artsy_user)
-    @fieldsArray = [
+    @array = [
       { title: "Title",
         value: "#{artsy_user['title']}",
         short: false
       },
       { title: "Team",
-        value: getTeam(artsy_user),
+        value: get_team(artsy_user),
         short: true
       },
       {
@@ -18,17 +18,17 @@ class FieldContructor
       },
       {
         title: "Floor",
-        value: getFloor(artsy_user),
+        value: get_floor(artsy_user),
         short: true
       }
     ]
   end
 
-  def getTeam(artsy_user)
+  def get_team(artsy_user)
     artsy_user['subteam'] != '--' ? artsy_user['subteam'] : artsy_user['team']
   end
 
-  def getFloor(artsy_user)
+  def get_floor(artsy_user)
     artsy_user['floor'] == '--' ? 'Remote' : artsy_user['floor']
   end
 
