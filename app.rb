@@ -6,6 +6,7 @@ require 'json'
 require 'httparty'
 require 'pp'
 require 'csv'
+require './fields_constructor.rb'
 
 Dotenv.load
 
@@ -31,18 +32,7 @@ class WhoIs < Sinatra::Base
         title: "#{artsy_user['name']}",
         text: "",
         thumb_url: user['profile']['image_192'],
-        fields: [
-          {
-            title: "Role",
-            value: "#{artsy_user['role']}",
-            short: true
-          },
-          {
-            title: "Team",
-            value: "#{artsy_user['practice']}",
-            short: true
-          }
-        ]
+        fields: FieldConstructor.new(artsy_user)
       }]
     args = {
       channel: "@#{user_name}",
