@@ -14,8 +14,6 @@ Dotenv.load
 class Whois < Sinatra::Base
 
   post '/' do
-    content_type :json
-
     Slack.configure do |config|
       config.token = ENV['SLACK_API_TOKEN']
     end
@@ -48,6 +46,7 @@ class Whois < Sinatra::Base
     }
 
     @client.chat_postMessage args
+    content_type :json
     status 200
     body ''
   end
