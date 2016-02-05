@@ -24,7 +24,7 @@ class Whois < Sinatra::Base
     username = args[0].sub('@', '')
     channel = args[1] ? args[1] : "@#{requester}"
 
-    slack_user = find_slack_profile(username)
+    slack_user = find_slack_profile(client, username)
     artsy_user = find_artsy_user(slack_user) if slack_user
 
     return body('Could not find user!') if slack_user.nil? || artsy_user.nil?
@@ -56,7 +56,7 @@ class Whois < Sinatra::Base
     body ''
   end
 
-  def find_slack_profile(username)
+  def find_slack_profile(client, username)
     slack_user = client.users_list['members'].find do |u|
       u['name'] == username
     end
