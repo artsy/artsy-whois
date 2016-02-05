@@ -3,22 +3,24 @@ class Fields
 
   def initialize(artsy_user)
     @array = [
-      { title: "Title",
-        value: "#{artsy_user['title']}",
+      {
+        title: 'Title',
+        value: (artsy_user['title']).to_s,
         short: false
       },
-      { title: "Team",
+      {
+        title: 'Team',
         value: get_team(artsy_user),
         short: true
       },
       {
-        title: "Email",
+        title: 'Email',
         value: "#{artsy_user['email']}artsymail.com",
         short: true
       },
       {
-        title: "Location",
-        value: "#{artsy_user['city']}",
+        title: 'Location',
+        value: (artsy_user['city']).to_s,
         short: true
       }
     ]
@@ -33,22 +35,22 @@ class Fields
 
   def add_floor(artsy_user)
     if artsy_user['floor'] == 25 || artsy_user['floor'] == 27
-      @array.push({
-        title: "Floor",
-        value: "#{artsy_user['floor']}",
+      @array.push(
+        title: 'Floor',
+        value: artsy_user['floor'].to_s,
         short: true
-        })
+      )
     end
   end
 
   def add_role_text(artsy_user)
-    if !artsy_user['role_text'].empty?
-      @array.insert(1, {
-        title: "Role",
-        value: "#{artsy_user['role_text']}",
+    unless artsy_user['role_text'].empty?
+      @array.insert(
+        1,
+        title: 'Role',
+        value: artsy_user['role_text'].to_s,
         short: false
-        })
+      )
     end
   end
-
 end

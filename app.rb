@@ -12,45 +12,44 @@ require './fields.rb'
 Dotenv.load
 
 class Whois < Sinatra::Base
-
   post '/' do
     Slack.configure do |config|
       config.token = ENV['SLACK_API_TOKEN']
     end
 
-    @client = Slack::Web::Client.new(user_agent: 'Slack Ruby Client/1.0')
+    client = Slack::Web::Client.new
 
     requester = params[:user_name]
-    args = params[:text].split(" ")
-    username = args[0].sub("@", "")
+    args = params[:text].split(' ')
+    username = args[0].sub('@', '')
     channel = args[1] ? args[1] : "@#{requester}"
 
     slack_user = find_slack_profile(username)
     artsy_user = find_artsy_user(slack_user) if slack_user
 
-    return body("Could not find user!") if slack_user.nil? || artsy_user.nil?
+    return body('Could not find user!') if slack_user.nil? || artsy_user.nil?
 
     headshot = artsy_user['headshot'].empty? ? slack_user['profile']['image_192'] : artsy_user['headshot']
 
     attachments = [{
-      title: "#{artsy_user['name']}",
+      title: (artsy_user['name']).to_s,
       title_link: "#{ENV['TEAM_NAV_API']}/#{email_name(slack_user)}",
-      text: "",
+      text: '',
       fallback: "Info on #{artsy_user['name']}",
-      color: "#6a0bc1",
-      thumb_url: "#{embedly_url(headshot)}",
+      color: '#6a0bc1',
+      thumb_url: embedly_url(headshot).to_s,
       fields: Fields.new(artsy_user).array
     }]
 
     options = {
       channel: channel,
-      text: "",
-      username: "Artsy",
-      icon_url: "https://www.artsy.net/images/icon-150.png",
+      text: '',
+      username: 'Artsy',
+      icon_url: 'https://www.artsy.net/images/icon-150.png',
       attachments: attachments.to_json
     }
 
-    @client.chat_postMessage options
+    client.chat_postMessage options
 
     content_type :json
     status 200
@@ -58,8 +57,8 @@ class Whois < Sinatra::Base
   end
 
   def find_slack_profile(username)
-    slack_user = @client.users_list['members'].find do |u|
-      u["name"] == username
+    slack_user = client.users_list['members'].find do |u|
+      u['name'] == username
     end
   end
 
@@ -75,16 +74,15 @@ class Whois < Sinatra::Base
 
   def embedly_url(img)
     uri = URI::HTTP.build(
-      host: "i.embed.ly",
-      path: "/1/display/crop",
-      query: URI.encode_www_form({
+      host: 'i.embed.ly',
+      path: '/1/display/crop',
+      query: URI.encode_www_form(
         url: img,
         width: 200,
         height: 200,
         quality: 90,
         grow: false,
-        key: ENV['EMBEDLY_KEY']
-      })
+        key: ENV['EMBEDLY_KEY'])
     )
     uri
   end

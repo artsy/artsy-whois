@@ -1,4 +1,4 @@
-#config.ru
+# config.ru
 
 require './app'
 run Whois
