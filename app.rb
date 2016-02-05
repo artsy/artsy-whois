@@ -68,7 +68,7 @@ class Whois < Sinatra::Base
 
   def find_artsy_user(slack_user)
     url = "#{ENV['TEAM_NAV_API']}/api/members/#{email_name(slack_user)}"
-    response = HTTParty.get(url)
+    response = HTTParty.get(url, headers: { 'X-API-TOKEN' => ENV['TEAM_API_TOKEN'] })
     user = JSON.parse(response.body)
   end
 
