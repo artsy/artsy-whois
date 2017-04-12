@@ -67,9 +67,63 @@ class Whois < Sinatra::Base
   end
 
   def find_artsy_user(slack_user)
-    url = "#{ENV['TEAM_NAV_API']}/api/members/#{email_name(slack_user)}"
-    response = HTTParty.get(url, headers: { 'X-API-TOKEN' => ENV['TEAM_API_TOKEN'] })
-    user = JSON.parse(response.body)
+    user = email_name(slack_user)
+    query = member_query(user)
+    url = "#{ENV['TEAM_NAV_API']}/api?query=#{uri.escape(query)}"
+    response = HTTParty.get(url, headers: { 'secret' => ENV['TEAM_API_TOKEN'] })
+    JSON.parse(response.body)
+  end
+
+  def member_query(user)
+    <<-GRAPHQL
+      {
+        member(email: "#{user}@") {
+          _id
+          handle
+          name
+          namePronounciation
+          email
+          title
+          floor
+          city
+          headshot
+          team
+          teamID
+          subteam
+          subteamID
+          productTeam
+          productTeamID
+          reportsTo
+          roleText
+          teamRank
+          startDate
+          slackHandle
+          slackID
+          slackPresence
+          githubHandle
+          githubHistory
+          feedbackFormUrl
+          writerAuthorId
+          articleHistory {
+            href
+            name
+          }
+          timeZone
+          timeZoneOffset
+          timeZoneLabel
+          slackProfile {
+            facebook
+            facebook_url
+            instagram
+            instagram_url
+            twitter
+            twitter_url
+            website
+            website_url
+          }
+        }
+      }
+    GRAPHQL
   end
 
   def embedly_url(img)
