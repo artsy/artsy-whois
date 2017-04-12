@@ -34,7 +34,7 @@ class Fields
   end
 
   def add_floor(artsy_user)
-    if artsy_user['floor'] == 25 || artsy_user['floor'] == 27
+    if artsy_user['floor'] == 25 || artsy_user['floor'] == 27 || artsy_user['floor'] == 26 || artsy_user['floor'] == 11
       @array.push(
         title: 'Floor',
         value: artsy_user['floor'].to_s,
