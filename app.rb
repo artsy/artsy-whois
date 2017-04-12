@@ -70,7 +70,7 @@ class Whois < Sinatra::Base
     user = email_name(slack_user)
     query = member_query(user)
     url = "#{ENV['TEAM_NAV_API']}/api?query=#{URI.escape(query)}"
-    response = HTTParty.get(url, headers: { 'secret' => ENV['TEAM_API_TOKEN'], 'user-agent': 'artsy-whois' })
+    response = HTTParty.get(url, headers: { 'secret' => ENV['TEAM_API_TOKEN'], 'user-agent' => 'artsy-whois' })
     JSON.parse(response.body)['data']['member']
   end
 
