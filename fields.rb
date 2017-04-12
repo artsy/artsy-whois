@@ -44,11 +44,11 @@ class Fields
   end
 
   def add_role_text(artsy_user)
-    unless artsy_user['role_text'].empty?
+    unless artsy_user['roleText'].empty?
       @array.insert(
         1,
         title: 'Role',
-        value: artsy_user['role_text'].to_s,
+        value: artsy_user['roleText'].to_s,
         short: false
       )
     end
